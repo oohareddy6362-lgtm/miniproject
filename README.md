@@ -206,10 +206,6 @@ npx prisma generate  # Generate Prisma Client
 
 ---
 
-## 🎓 Original Tutorial
-
-This project is based on the tutorial by **RoadsideCoder**:
-- **YouTube**: https://youtu.be/UbXpRv5ApKA
 
 ---
 
@@ -217,17 +213,7 @@ This project is based on the tutorial by **RoadsideCoder**:
 
 This project is for educational purposes.
 
----
-
-## 🆘 Need Help?
-
-1. Check [QUICK_START.md](QUICK_START.md) for setup instructions
-2. Check [SETUP.md](SETUP.md) for detailed troubleshooting
-3. Check [LINKS_AND_RESOURCES.md](LINKS_AND_RESOURCES.md) for all resources
-
----
-
-**Made with 💗 by RoadsideCoder**
+--
 
 ---
 
