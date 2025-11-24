@@ -16,6 +16,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <ClerkProvider
+      telemetry={false}
       appearance={{
         baseTheme: dark,
       }}
@@ -24,7 +25,7 @@ export default function RootLayout({ children }) {
         <head>
           <link rel="icon" href="/logo.png" sizes="any" />
         </head>
-        <body className={`${inter.className}`}>
+        <body className={`${inter.className}`} suppressHydrationWarning>
           <ThemeProvider
             attribute="class"
             defaultTheme="dark"
@@ -36,8 +37,8 @@ export default function RootLayout({ children }) {
             <Toaster richColors />
 
             <footer className="bg-muted/50 py-12">
-              <div className="container mx-auto px-4 text-center text-gray-200">
-                <p>Made with 💗 by RoadsideCoder</p>
+              <div className="container mx-auto px-4 text-center text-muted-foreground">
+                <p>Made with 💗 by our team</p>
               </div>
             </footer>
           </ThemeProvider>

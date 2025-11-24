@@ -40,8 +40,9 @@ export default function LandingPage() {
             {features.map((feature, index) => (
               <Card
                 key={index}
-                className="border-2 hover:border-primary transition-colors duration-300"
-              >
+                className="boreder-2 hover:border-primary transition-colors duration-300"
+                
+              > 
                 <CardContent className="pt-6 text-center flex flex-col items-center">
                   <div className="flex flex-col items-center justify-center">
                     {feature.icon}
@@ -49,6 +50,9 @@ export default function LandingPage() {
                     <p className="text-muted-foreground">
                       {feature.description}
                     </p>
+                  </div>
+                  <div>
+                  
                   </div>
                 </CardContent>
               </Card>

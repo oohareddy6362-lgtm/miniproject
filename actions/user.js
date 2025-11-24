@@ -5,6 +5,7 @@ import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 import { generateAIInsights } from "./dashboard";
 
+
 export async function updateUser(data) {
   const { userId } = await auth();
   if (!userId) throw new Error("Unauthorized");
@@ -12,58 +13,63 @@ export async function updateUser(data) {
   const user = await db.user.findUnique({
     where: { clerkUserId: userId },
   });
-
   if (!user) throw new Error("User not found");
-
   try {
-    // Start a transaction to handle both operations
-    const result = await db.$transaction(
-      async (tx) => {
-        // First check if industry exists
-        let industryInsight = await tx.industryInsight.findUnique({
-          where: {
-            industry: data.industry,
-          },
-        });
+    // Prepare update data - only include fields that exist in the User model
+    const updateData = {
+      industry: data.industry,
+      bio: data.bio,
+      skills: data.skills ? JSON.stringify(data.skills) : null,
+    };
 
-        // If industry doesn't exist, create it with default values
-        if (!industryInsight) {
-          const insights = await generateAIInsights(data.industry);
+    // Only add experience if it's provided and is a valid number
+    if (data.experience !== undefined && data.experience !== null) {
+      updateData.experience = parseInt(data.experience, 10);
+    }
 
-          industryInsight = await db.industryInsight.create({
-            data: {
-              industry: data.industry,
-              ...insights,
-              nextUpdate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-            },
-          });
-        }
+    // First, update the user profile (this should always work)
+    const updatedUser = await db.user.update({
+      where: {
+        id: user.id,
+      },
+      data: updateData,
+    });
 
-        // Now update the user
-        const updatedUser = await tx.user.update({
-          where: {
-            id: user.id,
-          },
+    // Then try to create/get industry insights (this might fail if AI is down)
+    try {
+      let industryInsight = await db.industryInsight.findUnique({
+        where: {
+          industry: data.industry,
+        },
+      });
+
+      // If industry doesn't exist, create it with AI-generated insights
+      if (!industryInsight) {
+        const insights = await generateAIInsights(data.industry);
+
+        industryInsight = await db.industryInsight.create({
           data: {
             industry: data.industry,
-            experience: data.experience,
-            bio: data.bio,
-            skills: data.skills,
+            ...insights,
+            nextUpdate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
           },
         });
-
-        return { updatedUser, industryInsight };
-      },
-      {
-        timeout: 10000, // default: 5000
       }
-    );
+    } catch (aiError) {
+      console.error("Failed to generate AI insights, but user profile was updated:", aiError.message);
+      // Continue anyway - user profile is updated
+    }
 
     revalidatePath("/");
-    return result.user;
+    return updatedUser;
   } catch (error) {
-    console.error("Error updating user and industry:", error.message);
-    throw new Error("Failed to update profile");
+    console.error("Error updating user and industry:", error);
+    console.error("Error details:", {
+      message: error.message,
+      stack: error.stack,
+      data: data
+    });
+    throw new Error(`Failed to update profile: ${error.message}`);
   }
 }
 

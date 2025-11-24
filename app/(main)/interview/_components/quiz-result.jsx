@@ -12,6 +12,11 @@ export default function QuizResult({
 }) {
   if (!result) return null;
 
+  // Parse questions if they're stored as a JSON string
+  const questions = typeof result.questions === 'string'
+    ? JSON.parse(result.questions)
+    : result.questions;
+
   return (
     <div className="mx-auto">
       <h1 className="flex items-center gap-2 text-3xl gradient-title">
@@ -37,7 +42,7 @@ export default function QuizResult({
         {/* Questions Review */}
         <div className="space-y-4">
           <h3 className="font-medium">Question Review</h3>
-          {result.questions.map((q, index) => (
+          {questions?.map((q, index) => (
             <div key={index} className="border rounded-lg p-4 space-y-2">
               <div className="flex items-start justify-between gap-2">
                 <p className="font-medium">{q.question}</p>

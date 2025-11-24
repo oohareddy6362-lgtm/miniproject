@@ -56,9 +56,20 @@ const OnboardingForm = ({ industries }) => {
         .toLowerCase()
         .replace(/ /g, "-")}`;
 
+      // Convert skills to array if it's a string
+      let skillsArray = [];
+      if (values.skills) {
+        if (typeof values.skills === 'string') {
+          skillsArray = values.skills.split(',').map(skill => skill.trim()).filter(Boolean);
+        } else if (Array.isArray(values.skills)) {
+          skillsArray = values.skills;
+        }
+      }
+
       await updateUserFn({
         ...values,
         industry: formattedIndustry,
+        skills: skillsArray,
       });
     } catch (error) {
       console.error("Onboarding error:", error);
@@ -66,7 +77,7 @@ const OnboardingForm = ({ industries }) => {
   };
 
   useEffect(() => {
-    if (updateResult?.success && !updateLoading) {
+    if (updateResult && !updateLoading) {
       toast.success("Profile completed successfully!");
       router.push("/dashboard");
       router.refresh();

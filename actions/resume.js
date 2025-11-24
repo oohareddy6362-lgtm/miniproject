@@ -6,7 +6,8 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import { revalidatePath } from "next/cache";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+// Using the latest Gemini model
+const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
 export async function saveResume(content) {
   const { userId } = await auth();
@@ -63,9 +64,6 @@ export async function improveWithAI({ current, type }) {
 
   const user = await db.user.findUnique({
     where: { clerkUserId: userId },
-    include: {
-      industryInsight: true,
-    },
   });
 
   if (!user) throw new Error("User not found");
@@ -82,7 +80,7 @@ export async function improveWithAI({ current, type }) {
     4. Keep it concise but detailed
     5. Focus on achievements over responsibilities
     6. Use industry-specific keywords
-    
+
     Format the response as a single paragraph without any additional text or explanations.
   `;
 

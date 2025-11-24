@@ -22,5 +22,6 @@ export const testimonial = [
     image: "https://randomuser.me/api/portraits/women/74.jpg",
     role: "Marketing Director",
     company: "Global Corp",
+    compan2:"Start up",
   },
 ];

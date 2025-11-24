@@ -5,7 +5,7 @@ import { auth } from "@clerk/nextjs/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
 export async function generateQuiz() {
   const { userId } = await auth();
@@ -21,11 +21,13 @@ export async function generateQuiz() {
 
   if (!user) throw new Error("User not found");
 
+  const skills = user.skills ? JSON.parse(user.skills) : [];
+
   const prompt = `
     Generate 10 technical interview questions for a ${
       user.industry
     } professional${
-    user.skills?.length ? ` with expertise in ${user.skills.join(", ")}` : ""
+    skills?.length ? ` with expertise in ${skills.join(", ")}` : ""
   }.
     
     Each question should be multiple choice with 4 options.
@@ -56,7 +58,6 @@ export async function generateQuiz() {
     throw new Error("Failed to generate quiz questions");
   }
 }
-
 export async function saveQuizResult(questions, answers, score) {
   const { userId } = await auth();
   if (!userId) throw new Error("Unauthorized");
@@ -75,10 +76,8 @@ export async function saveQuizResult(questions, answers, score) {
     explanation: q.explanation,
   }));
 
-  // Get wrong answers
+  
   const wrongAnswers = questionResults.filter((q) => !q.isCorrect);
-
-  // Only generate improvement tips if there are wrong answers
   let improvementTip = null;
   if (wrongAnswers.length > 0) {
     const wrongQuestionsText = wrongAnswers
@@ -115,13 +114,17 @@ export async function saveQuizResult(questions, answers, score) {
       data: {
         userId: user.id,
         quizScore: score,
-        questions: questionResults,
+        questions: JSON.stringify(questionResults),
         category: "Technical",
         improvementTip,
       },
     });
 
-    return assessment;
+    // Return assessment with parsed questions for immediate use
+    return {
+      ...assessment,
+      questions: questionResults
+    };
   } catch (error) {
     console.error("Error saving quiz result:", error);
     throw new Error("Failed to save quiz result");
@@ -148,7 +151,11 @@ export async function getAssessments() {
       },
     });
 
-    return assessments;
+    // Parse JSON strings back to arrays
+    return assessments.map(assessment => ({
+      ...assessment,
+      questions: JSON.parse(assessment.questions)
+    }));
   } catch (error) {
     console.error("Error fetching assessments:", error);
     throw new Error("Failed to fetch assessments");

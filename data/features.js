@@ -18,6 +18,7 @@ export const features = [
     title: "Industry Insights",
     description:
       "Stay ahead with real-time industry trends, salary data, and market analysis.",
+      
   },
   {
     icon: <ScrollText className="w-10 h-10 mb-4 text-primary" />,
