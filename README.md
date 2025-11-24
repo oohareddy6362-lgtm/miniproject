@@ -1,6 +1,5 @@
 # 🎯 AI Career Coach - Full Stack Application
 
-![sensai](https://github.com/user-attachments/assets/eee79242-4056-4d19-b655-2873788979e1)
 
 ## 🚀 Complete Working Project - Ready to Run!
 
